@@ -7,8 +7,8 @@
         span(ref="progress") 0
         | %
     #main
-      video.hidden(ref="video")
-      #renderer
+      #renderer.relative-position
+        video.absolute-center(ref="video")
     #footer.fixed-bottom.q-py-lg.q-gutter-lg.text-center
       q-btn(round size="lg" color="primary" icon="menu" @click="$root.$emit('triggerDrawer',{side:'left', open: true})")
       q-btn(round size="lg" color="purple" icon="camera" @click="save")
@@ -40,7 +40,7 @@ export default {
       },
       three: {
         scene: new THREE.Scene(),
-        renderer: new THREE.WebGLRenderer({ antialias: true }),
+        renderer: new THREE.WebGLRenderer({ antialias: true, alpha: true }),
         // renderer: new THREE.WebGLRenderer(),
         camera: new THREE.PerspectiveCamera(30.0, 1.0, 0.1, 20.0),
         videoTexture: null,
@@ -94,12 +94,8 @@ export default {
               // muted: true,
             })
 
-            this.three.videoTexture = new THREE.VideoTexture(this.$refs.video)
-            this.three.videoTexture.minFilter = THREE.LinearFilter
-            this.three.videoTexture.minFilter = THREE.LinearFilter
-            this.three.videoTexture.magFilter = THREE.LinearFilter
-            this.three.videoTexture.format = THREE.RGBFormat
-            this.three.scene.background = this.three.videoTexture
+            this.three.scene.background = null
+            this.three.renderer.setClearColor(0x000000, 0)
 
             this.onWindowResize()
             this.animate()
@@ -141,26 +137,35 @@ export default {
       if (this.saveRequest) {
         const link = document.createElement('a')
         link.download = 'vrm.jpg'
-        link.href = this.three.renderer.domElement.toDataURL('image/jpeg')
+        if (this.mode !== 'ar') {
+          link.href = this.three.renderer.domElement.toDataURL('image/jpeg')
+        } else {
+          const canvas = document.createElement('canvas')
+          canvas.width = this.three.renderer.domElement.width
+          canvas.height = this.three.renderer.domElement.height
+          const ctx = canvas.getContext('2d')
+          ctx.drawImage(this.$refs.video, 0, 0, this.$refs.video.width, this.$refs.video.height)
+          ctx.drawImage(this.three.renderer.domElement, 0, 0, this.three.renderer.domElement.width, this.three.renderer.domElement.height)
+          link.href = canvas.toDataURL('image/jpeg')
+        }
         link.click()
         this.sfx.camera.play()
         this.saveRequest = false
       }
-
-      // this cause high CPU usage, so we only use this when using webcam
-      if (this.settings.mode === 'ar') {
-        requestAnimationFrame(this.animate)
-      }
     },
     onWindowResize () {
-      if (this.settings.mode === 'ar' && this.three.videoTexture) {
+      if (this.settings.mode === 'ar' && this.cam.stream) {
         if (this.cam.videoSettings.width >= window.innerWidth || this.cam.videoSettings.height >= window.innerHeight) {
           const ratio = this.cam.videoSettings.width / this.cam.videoSettings.height
           this.three.renderer.setSize(window.innerWidth, window.innerWidth / ratio)
           this.three.camera.aspect = ratio
+          this.$refs.video.width = window.innerWidth
+          this.$refs.video.height = window.innerWidth / ratio
         } else {
           this.three.renderer.setSize(this.cam.videoSettings.width, this.cam.videoSettings.height)
           this.three.camera.aspect = this.cam.videoSettings.width / this.cam.videoSettings.height
+          this.$refs.video.width = this.cam.videoSettings.width
+          this.$refs.video.height = this.cam.videoSettings.height
         }
       } else if (this.settings.mode === 'image') {
         if (this.settings.image.width >= window.innerWidth || this.settings.image.height >= window.innerHeight) {
@@ -254,6 +259,7 @@ export default {
   },
   mounted () {
     const rendererEl = document.getElementById('renderer')
+    this.three.renderer.domElement.classList.add('absolute-center')
     rendererEl.appendChild(this.three.renderer.domElement)
 
     this.mode = this.settings.mode
