@@ -155,12 +155,12 @@ export default {
     },
     onWindowResize () {
       if (this.settings.mode === 'ar' && this.cam.stream) {
-        if (this.cam.videoSettings.width >= window.innerWidth || this.cam.videoSettings.height >= window.innerHeight) {
+        if (this.cam.videoSettings.width >= document.body.clientWidth || this.cam.videoSettings.height >= document.body.clientHeight) {
           const ratio = this.cam.videoSettings.width / this.cam.videoSettings.height
-          this.three.renderer.setSize(window.innerWidth, window.innerWidth / ratio)
+          this.three.renderer.setSize(document.body.clientWidth, document.body.clientWidth / ratio)
           this.three.camera.aspect = ratio
-          this.$refs.video.width = window.innerWidth
-          this.$refs.video.height = window.innerWidth / ratio
+          this.$refs.video.width = document.body.clientWidth
+          this.$refs.video.height = document.body.clientWidth / ratio
         } else {
           this.three.renderer.setSize(this.cam.videoSettings.width, this.cam.videoSettings.height)
           this.three.camera.aspect = this.cam.videoSettings.width / this.cam.videoSettings.height
@@ -168,17 +168,17 @@ export default {
           this.$refs.video.height = this.cam.videoSettings.height
         }
       } else if (this.settings.mode === 'image') {
-        if (this.settings.image.width >= window.innerWidth || this.settings.image.height >= window.innerHeight) {
+        if (this.settings.image.width >= document.body.clientWidth || this.settings.image.height >= document.body.clientHeight) {
           const ratio = this.settings.image.width / this.settings.image.height
-          this.three.renderer.setSize(window.innerWidth, window.innerWidth / ratio)
+          this.three.renderer.setSize(document.body.clientWidth, document.body.clientWidth / ratio)
           this.three.camera.aspect = ratio
         } else {
           this.three.renderer.setSize(this.settings.image.width, this.settings.image.height)
           this.three.camera.aspect = this.settings.image.width / this.settings.image.height
         }
       } else {
-        this.three.renderer.setSize(window.innerWidth, window.innerHeight)
-        this.three.camera.aspect = window.innerWidth / window.innerHeight
+        this.three.renderer.setSize(document.body.clientWidth, document.body.clientHeight)
+        this.three.camera.aspect = document.body.clientWidth / document.body.clientHeight
       }
       this.three.camera.updateProjectionMatrix()
       this.animate()
