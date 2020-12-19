@@ -144,7 +144,7 @@ export default {
           canvas.width = this.three.renderer.domElement.width
           canvas.height = this.three.renderer.domElement.height
           const ctx = canvas.getContext('2d')
-          ctx.drawImage(this.$refs.video, 0, 0, this.$refs.video.width, this.$refs.video.height)
+          ctx.drawImage(this.$refs.video, 0, 0, this.$refs.video.width, this.$refs.video.height, 0, 0, this.three.renderer.domElement.width, this.three.renderer.domElement.height)
           ctx.drawImage(this.three.renderer.domElement, 0, 0, this.three.renderer.domElement.width, this.three.renderer.domElement.height)
           link.href = canvas.toDataURL('image/jpeg')
         }
