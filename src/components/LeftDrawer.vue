@@ -12,6 +12,11 @@
         q-card
           q-card-section
             q-select(:value="settings.mode" :options="modeOptions" @input="changeMode" emit-value map-options filled)
+        q-card(v-if="settings.mode === 'ar'")
+          q-card-section
+            div.text-subtitle2 {{ $t('menu.camera') }}
+          q-card-section
+            q-select(:value="settings.cam.device" :options="deviceOptions" @input="changeDevice" emit-value map-options filled)
         q-card(v-if="settings.mode === 'color'")
           q-card-section
             q-color.full-width(:value="settings.color" @change="changeColor")
@@ -129,6 +134,14 @@ export default {
         }
       ]
     },
+    deviceOptions () {
+      return this.settings.cam.devices.map(device => {
+        return {
+          label: device.label,
+          value: device.deviceId
+        }
+      })
+    },
     emoteOptions () {
       return this.settings.model.expressions
     }
@@ -140,6 +153,9 @@ export default {
     },
     changeMode (value) {
       this.$store.commit('settings/updateMode', value)
+    },
+    changeDevice (value) {
+      this.$store.commit('settings/updateDevice', value)
     },
     changeColor (value) {
       this.$store.commit('settings/updateColor', value)

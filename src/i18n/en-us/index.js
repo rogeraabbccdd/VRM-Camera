@@ -4,6 +4,7 @@ export default {
     settings: 'Settings',
     lang: 'Language',
     ar: 'Camera',
+    camera: 'Select Camera',
     color: 'Color',
     image: 'Image',
     defaultImage: 'Default photo by Phil Botha on Unsplash',
@@ -16,7 +17,8 @@ export default {
     pose: 'Pose'
   },
   alert: {
-    camera: 'You have to allow camera to use AR mode.',
+    cameraPermission: 'You have to allow camera to use AR mode.',
+    cameraStart: 'Could not start video source.',
     confirm: 'OK'
   },
   usage: {

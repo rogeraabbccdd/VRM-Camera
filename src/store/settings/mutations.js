@@ -6,6 +6,10 @@ export function updateMode (state, data) {
   state.mode = data
 }
 
+export function updateDevice (state, data) {
+  state.cam.device = data
+}
+
 export function updateColor (state, data) {
   state.color = data
 }

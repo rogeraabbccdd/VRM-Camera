@@ -13,11 +13,11 @@
       q-btn(round size="lg" color="primary" icon="menu" @click="$root.$emit('triggerDrawer',{side:'left', open: true})")
       q-btn(round size="lg" color="purple" icon="camera" @click="save")
       q-btn(round size="lg" color="secondary" icon="help" @click="$root.$emit('triggerDrawer',{side:'right', open: true})")
-    q-dialog(v-model='cam.confirm')
+    q-dialog(v-model='alert.confirm')
       q-card
         q-card-section.row.items-center
           q-avatar(icon='camera_alt' color='primary' text-color='white')
-          span.q-ml-sm {{ $t('alert.camera') }}
+          span.q-ml-sm {{ alert.message }}
         q-card-actions(align='right')
           q-btn(flat :label="$t('alert.confirm')" color='primary' v-close-popup)
 </template>
@@ -36,12 +36,16 @@ export default {
       cam: {
         stream: null,
         videoSettings: null,
-        confirm: null
+        confirm: null,
+        device: ''
+      },
+      alert: {
+        confirm: null,
+        message: ''
       },
       three: {
         scene: new THREE.Scene(),
         renderer: new THREE.WebGLRenderer({ antialias: true, alpha: true }),
-        // renderer: new THREE.WebGLRenderer(),
         camera: new THREE.PerspectiveCamera(30.0, 1.0, 0.1, 20.0),
         videoTexture: null,
         loader: new GLTFLoader(),
@@ -79,32 +83,63 @@ export default {
   },
   methods: {
     initWebCam () {
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-          .then(stream => {
-            this.cam.stream = stream
-            this.cam.videoSettings = stream.getVideoTracks()[0].getSettings()
-            // console.log('videoSettings: width=%d, height=%d, frameRate=%d', this.cam.videoSettings.width, this.cam.videoSettings.height, this.cam.videoSettings.frameRate)
-            Object.assign(this.$refs.video, {
-              srcObject: stream,
-              width: this.cam.videoSettings.width,
-              height: this.cam.videoSettings.height,
-              autoplay: true
-              // Setting muted here breaks everything
-              // muted: true,
-            })
+      if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices && navigator.mediaDevices.getUserMedia) {
+        this.stopStream()
+        const videoSource = this.cam.device
+        const constraints = {
+          audio: false,
+          video: { deviceId: videoSource ? { exact: videoSource } : undefined }
+        }
+        navigator.mediaDevices.getUserMedia(constraints).then(this.gotStream).then(this.gotDevices).catch(this.handleCamError)
+      } else {
+        this.alert.confirm = true
+        this.alert.message = this.$t('alert.cameraPermission')
+        this.settings.mode = 'color'
+      }
+    },
+    gotStream (stream) {
+      this.cam.stream = stream
+      this.cam.videoSettings = stream.getVideoTracks()[0].getSettings()
+      this.cam.device = stream.getVideoTracks()[0].getCapabilities().deviceId
+      this.settings.cam.device = stream.getVideoTracks()[0].getCapabilities().deviceId
+      // console.log('videoSettings: width=%d, height=%d, frameRate=%d', this.cam.videoSettings.width, this.cam.videoSettings.height, this.cam.videoSettings.frameRate)
+      Object.assign(this.$refs.video, {
+        srcObject: stream,
+        width: this.cam.videoSettings.width,
+        height: this.cam.videoSettings.height,
+        autoplay: true
+        // Setting muted here breaks everything
+        // muted: true,
+      })
+      this.three.scene.background = null
+      this.three.renderer.setClearColor(0x000000, 0)
 
-            this.three.scene.background = null
-            this.three.renderer.setClearColor(0x000000, 0)
-
-            this.onWindowResize()
-            this.animate()
-          })
-          .catch(error => {
-            console.log(error)
-            this.cam.confirm = true
-            this.settings.mode = 'color'
-          })
+      this.onWindowResize()
+      this.animate()
+      return navigator.mediaDevices.enumerateDevices()
+    },
+    gotDevices (deviceInfos) {
+      this.settings.cam.devices = deviceInfos.filter(device => {
+        return device.kind === 'videoinput'
+      })
+    },
+    handleCamError (error) {
+      this.alert.confirm = true
+      this.settings.mode = 'color'
+      if (error.message === 'Could not start video source') {
+        this.alert.message = this.$t('alert.cameraStart')
+        this.cam.stream = null
+        this.cam.device = null
+      } else {
+        this.alert.message = this.$t('alert.cameraPermission')
+      }
+    },
+    stopStream () {
+      if (this.cam.stream) {
+        this.cam.stream.getTracks().forEach(track => {
+          track.stop()
+        })
+        this.cam.stream = null
       }
     },
     init () {
@@ -279,12 +314,12 @@ export default {
           if (this.mode === 'ar') {
             this.initWebCam()
           } else if (this.mode === 'image') {
-            if (this.cam.stream) this.cam.stream.getVideoTracks()[0].stop()
+            this.stopStream()
             this.three.scene.background = new THREE.TextureLoader().load(this.settings.image.file, () => {
               this.animate()
             })
           } else {
-            if (this.cam.stream) this.cam.stream.getVideoTracks()[0].stop()
+            this.stopStream()
             this.three.scene.background = new THREE.Color(this.three.color)
           }
           this.onWindowResize()
@@ -346,6 +381,12 @@ export default {
         if (this.mode === 'color' && this.settings.color !== this.three.color) {
           this.three.color = this.settings.color
           this.three.scene.background = new THREE.Color(this.three.color)
+        }
+
+        // change cam device
+        if (this.cam.device && this.cam.device !== this.settings.cam.device) {
+          this.cam.device = this.settings.cam.device
+          this.initWebCam()
         }
 
         this.animate()

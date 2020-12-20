@@ -4,6 +4,7 @@ export default {
     settings: '設定',
     lang: '語言',
     ar: '相機',
+    camera: '選擇相機',
     color: '顏色',
     image: '圖片',
     defaultImage: '預設圖片 by Phil Botha on Unsplash',
@@ -16,7 +17,8 @@ export default {
     pose: '動作'
   },
   alert: {
-    camera: '您必須允許攝影機才能使用 AR 模式.',
+    cameraPermission: '您必須允許攝影機才能使用 AR 模式.',
+    cameraStart: '無法使用該攝影機.',
     confirm: '確定'
   },
   usage: {

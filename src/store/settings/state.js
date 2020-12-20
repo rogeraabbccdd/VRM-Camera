@@ -3,6 +3,10 @@ export default function () {
     mode: 'color',
     lang: 'en-us',
     color: 'rgb(76,76,76)',
+    cam: {
+      devices: [],
+      device: ''
+    },
     model: {
       file: './vrm/AliciaSolid.vrm',
       name: '',
