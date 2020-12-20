@@ -18,7 +18,7 @@
 
 <script>
 export default {
-  name: 'LeftDrawer',
+  name: 'RightDrawer',
   data () {
     return {
       version: process.env.VERSION
