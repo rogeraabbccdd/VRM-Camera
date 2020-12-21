@@ -176,11 +176,17 @@ export default {
           link.href = this.three.renderer.domElement.toDataURL('image/jpeg')
         } else {
           const canvas = document.createElement('canvas')
-          canvas.width = this.three.renderer.domElement.width
-          canvas.height = this.three.renderer.domElement.height
+          canvas.width = this.$refs.video.videoWidth
+          canvas.height = this.$refs.video.videoHeight
           const ctx = canvas.getContext('2d')
-          ctx.drawImage(this.$refs.video, 0, 0, this.$refs.video.width, this.$refs.video.height, 0, 0, this.three.renderer.domElement.width, this.three.renderer.domElement.height)
-          ctx.drawImage(this.three.renderer.domElement, 0, 0, this.three.renderer.domElement.width, this.three.renderer.domElement.height)
+          ctx.drawImage(this.$refs.video, 0, 0, this.$refs.video.videoWidth, this.$refs.video.videoHeight)
+          this.three.renderer.setSize(this.$refs.video.videoWidth, this.$refs.video.videoHeight)
+          this.three.camera.updateProjectionMatrix()
+          this.three.renderer.render(this.three.scene, this.three.camera)
+          ctx.drawImage(this.three.renderer.domElement, 0, 0, this.three.renderer.domElement.width, this.three.renderer.domElement.height, 0, 0, this.$refs.video.videoWidth, this.$refs.video.videoHeight)
+          this.three.renderer.setSize(this.$refs.video.width, this.$refs.video.height)
+          this.three.camera.updateProjectionMatrix()
+          this.three.renderer.render(this.three.scene, this.three.camera)
           link.href = canvas.toDataURL('image/jpeg')
         }
         link.click()
