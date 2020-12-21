@@ -358,7 +358,7 @@ export default {
           // change pose
           if (this.model.pose !== this.settings.model.pose) {
             this.model.pose = this.settings.model.pose
-            if (this.model.pose) {
+            if (this.model.pose && Pose[this.model.pose]) {
               this.three.vrm.humanoid.setPose(Pose[this.model.pose])
             } else {
               this.three.vrm.humanoid.setPose(Pose.standard)

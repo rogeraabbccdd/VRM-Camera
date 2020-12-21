@@ -16,6 +16,11 @@ export default {
     emote: '表情',
     pose: '動作'
   },
+  pose: {
+    standard: '一般',
+    ya: 'Ya',
+    think: '思考'
+  },
   alert: {
     cameraPermission: '您必須允許攝影機才能使用 AR 模式.',
     cameraStart: '無法使用該攝影機.',

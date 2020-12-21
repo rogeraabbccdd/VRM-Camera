@@ -16,6 +16,11 @@ export default {
     emote: 'Emote',
     pose: 'Pose'
   },
+  pose: {
+    standard: 'Standard',
+    ya: 'Ya',
+    think: 'Think'
+  },
   alert: {
     cameraPermission: 'You have to allow camera to use AR mode.',
     cameraStart: 'Could not start video source.',

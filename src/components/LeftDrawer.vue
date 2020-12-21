@@ -54,6 +54,8 @@
 </template>
 
 <script>
+import Pose from '../assets/poses'
+
 export default {
   name: 'LeftDrawer',
   data () {
@@ -82,16 +84,6 @@ export default {
         {
           label: 'O',
           value: 'O'
-        }
-      ],
-      poseOptions: [
-        {
-          label: 'Standard',
-          value: 'standard'
-        },
-        {
-          label: 'Ya',
-          value: 'ya'
         }
       ],
       langOptions: [
@@ -144,6 +136,18 @@ export default {
     },
     emoteOptions () {
       return this.settings.model.expressions
+    },
+    poseOptions () {
+      const data = []
+      for (const index in Pose) {
+        data.push(
+          {
+            label: this.$t('pose.' + index),
+            value: index
+          }
+        )
+      }
+      return data
     }
   },
   methods: {
