@@ -1,6 +1,7 @@
 import { VRMSchema } from '@pixiv/three-vrm'
 import standard from './standerd.js'
 import ya from './ya.js'
+import think from './think.js'
 
 const reset = () => {
   const filled = {}
@@ -20,5 +21,9 @@ export default {
   ya: {
     ...reset(),
     ...ya
+  },
+  think: {
+    ...reset(),
+    ...think
   }
 }
